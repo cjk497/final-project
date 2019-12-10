@@ -4,9 +4,20 @@ body {
 
 h1 {
   text-align: center;
+  font-size: 40px;
 }
 
-Button {
-  background-color: blue;
+img {
+  height: 40px;
+  width: 40px;
+  margin-right: 10px;
 }
 
+.formBox{
+  text-align: center;
+}
+
+#btn {
+  padding: 10px;
+
+}
