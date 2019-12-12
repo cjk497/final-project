@@ -31,37 +31,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Bookmarks = [
+  // List of Preset Bookmarks
   {
-    "label": "Google",
-    "link": "https://www.google.com"
-  },
-  {
-    "label": "Facebook",
-    "link": "https://www.facebook.com"
-  },
-  {
-    "label": "Youtube",
-    "link": "https://www.youtube.com"
-  },
-  {
-    "label": "Medium",
-    "link": "https://www.medium.com"
-  },
-  {
-    "label": "Albert",
+    "label": "NYU Albert",
     "link": "https://www.nyualbert.com"
-  },
-  {
-    "label": "Twitter",
-    "link": "https://www.twitter.com"
   },
   {
     "label": "Rate My Professor",
     "link": "https://www.ratemyprofessor.com"
   },
   {
-    "label": "NYU",
-    "link": "https://www.nyu.edu"
+    "label": "NYU Majors",
+    "link": "https://www.nyu.edu/admissions/undergraduate-admissions/majors-and-programs.html"
   }
 
 ];
@@ -81,8 +62,8 @@ function union(a, b) {
 export default function TransferList() {
   const classes = useStyles();
   const [checked, setChecked] = React.useState([]);
-  const [left, setLeft] = React.useState([]);
-  const [right, setRight] = React.useState([0,1,2,3,4, 5, 6, 7]);
+  const [left, setLeft] = React.useState(Bookmarks);
+  const [right, setRight] = React.useState([]);
 
   const leftChecked = intersection(checked, left);
   const rightChecked = intersection(checked, right);
@@ -110,17 +91,9 @@ export default function TransferList() {
     }
   };
 
-  const handleToggleAllLeft = items => () => {
-    if (numberOfChecked(items) === items.length) {
-      setChecked(not(checked, items));
-    } else {
-      setChecked(union(checked, items));
-    }
-  };
-
   const openAll = items => () => {
-    left.forEach(index => {
-      window.open(Bookmarks[index].link, "_blank");
+    right.forEach(index => {
+      window.open(index.link, "_blank", 'noopener=yes,noreferrer=yes');
     });
   };
 
@@ -136,7 +109,7 @@ export default function TransferList() {
     setChecked(not(checked, rightChecked));
   };
 
-  const rightList = (title, items) => (
+  const leftList = (title, items) => (
     <Card>
       <CardHeader
         className={classes.cardHeader}
@@ -146,7 +119,6 @@ export default function TransferList() {
             checked={numberOfChecked(items) === items.length && items.length !== 0}
             indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
             disabled={items.length === 0}
-            inputProps={{ 'aria-label': 'all items selected' }}
           />
         }
         title={title}
@@ -158,16 +130,15 @@ export default function TransferList() {
           const labelId = `transfer-list-all-item-${value}-label`;
 
           return (
-            <ListItem key={value} role="listitem" button onClick={handleToggle(value)}>
+            <ListItem key={value.link} role="listitem" button onClick={handleToggle(value)}>
               <ListItemIcon>
               <Checkbox
                   checked={checked.indexOf(value) !== -1}
                   tabIndex={-1}
                   disableRipple
-                  inputProps={{ 'aria-labelledby': labelId }}
                 />
               </ListItemIcon>
-          <ListItemText id={labelId} primary={<a href={Bookmarks[value].link} target="_blank">{Bookmarks[value].label}</a>} />
+          <ListItemText id={labelId} primary={<a href={value.link} target="_blank">{value.label}</a>} />
             </ListItem>
           );
         })}
@@ -176,7 +147,7 @@ export default function TransferList() {
     </Card>
   );
 
-  const leftList = (title, items) => (
+  const rightList = (title, items) => (
     <Card>
       <CardHeader
         className={classes.cardHeader}
@@ -186,7 +157,6 @@ export default function TransferList() {
             checked={numberOfChecked(items) === items.length && items.length !== 0}
             indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
             disabled={items.length === 0}
-            inputProps={{ 'aria-label': 'all items selected' }}
           />
         }
         title={title}
@@ -197,7 +167,6 @@ export default function TransferList() {
           onClick={openAll(items)}
           indeterminate={numberOfChecked(items) !== items.length && numberOfChecked(items) !== 0}
           disabled={items.length === 0}
-          inputProps={{ 'aria-label': 'all items selected' }}
           >Open All</Button>}
       />
       
@@ -208,16 +177,15 @@ export default function TransferList() {
           const labelId = `transfer-list-all-item-${value}-label`;
 
           return (
-            <ListItem key={value} role="listitem" button onClick={handleToggle(value)}>
+            <ListItem key={value.link} role="listitem" button onClick={handleToggle(value)}>
               <ListItemIcon>
               <Checkbox
                   checked={checked.indexOf(value) !== -1}
                   tabIndex={-1}
                   disableRipple
-                  inputProps={{ 'aria-labelledby': labelId }}
                 />
               </ListItemIcon>
-              <ListItemText id={labelId} primary={<a href={Bookmarks[value].link} target="_blank">{Bookmarks[value].label}</a>} />
+              <ListItemText id={labelId} primary={<a href={value.link} target="_blank">{value.label}</a>} />
             </ListItem>
           );
         })}
@@ -227,17 +195,69 @@ export default function TransferList() {
     
   );
 
+  const [title, setTitle] = React.useState("");
+  const [link, setLink] = React.useState("");
+
+  function changeTitle(event) {
+    setTitle(event.target.value)
+  }
+  function changeLink(event) {
+    setLink(event.target.value)
+  }
+
+  const addBookmark = (event)=>{
+    event.preventDefault();
+    console.info(title, link);
+    let bookmark = {
+      label: title,
+      link: link,
+    }
+    let newLeft=left.concat([bookmark]);
+    setLeft(newLeft);
+    document.forms[0].reset();
+  };
+
   return (
-    <div class="App">
-      <h1><img src="https://freeiconshop.com/wp-content/uploads/edd/bookmark-flat.png"/>Bookmarks Manager</h1>
+    <div className="App">
+      <h1><img src="https://freeiconshop.com/wp-content/uploads/edd/bookmark-flat.png"/>Bookmark Bookworm</h1>
+      <p>Add bookmarks to save them and open multiple all at once!</p>
+      <form onSubmit={addBookmark}>
+        <div className="formBox">
+          <label className="label">New Bookmark Title: </label>
+          <input onChange={changeTitle} type="text" id="label" placeholder="Example" />
+        </div>
+        <div className="formBox">
+          <label className="link">New Bookmark Link:</label>
+          <input onChange={changeLink} type="text" id="link" placeholder="https://example.com" />
+        </div>
+        <div className="formBox">
+          
+        <Button
+          variant="contained"
+          size="medium"
+          onClick={addBookmark}
+          type="submit"
+        >Add to Your Bookmarks</Button>
+        </div>
+      </form>
       <Grid container spacing={2} justify="center" alignItems="center" className={classes.root}>
-        <Grid item>{leftList('Bookmark Folder', left)}</Grid>
+        <Grid item>{leftList('Your Bookmarks', left)}</Grid>
         <Grid item>
           <Grid container direction="column" alignItems="center">
+          <Button
+              variant="outlined"
+              size="small"
+              className="muiButton"
+              onClick={handleCheckedRight}
+              disabled={leftChecked.length === 0}
+              aria-label="move selected right"
+            >
+              &gt;
+            </Button>
             <Button
               variant="outlined"
               size="small"
-              className={classes.button}
+              className="muiButton"
               onClick={handleCheckedLeft}
               disabled={rightChecked.length === 0}
               aria-label="move selected left"
@@ -247,42 +267,25 @@ export default function TransferList() {
             <Button
               variant="outlined"
               size="small"
-              className={classes.button}
+              className="responsiveButton"
+              onClick={handleCheckedLeft}
+              disabled={rightChecked.length === 0}
+              aria-label="move selected left"
+            >	&#x2B06;</Button>
+            <Button
+              variant="outlined"
+              size="small"
+              className="responsiveButton"
               onClick={handleCheckedRight}
               disabled={leftChecked.length === 0}
               aria-label="move selected right"
-            >
-              &gt;
-            </Button>
+            >&#x2B07;</Button>
           </Grid>
         </Grid>
-        <Grid item>{rightList('Your Bookmarks', right)}</Grid>
+        <Grid item>{rightList('Bookmarks Folder', right)}</Grid>
       </Grid>
       
     </div>
   );
 }
 
-//Trying to add a user input functionality:
-// const addBookmark = (ev)=>{
-//   ev.preventDefault();
-//   let bookmark = {
-//     label: document.getElementById('label').value,
-//     link: document.getElementById('link').value
-//   }
-//   Bookmarks.concat(bookmark);
-//   document.forms[0].reset();
-// };
-/* <form>
-    <div class="formBox">
-      <label for="label">Bookmark Title: </label>
-      <input type="text" id="label" placeholder="Enter Bookmark Title" />
-    </div>
-    <div class="formBox">
-      <label for="link">Bookmark Link: </label>
-      <input type="text" id="link" placeholder="Enter Bookmark Link" />
-    </div>
-    <div class="formBox">
-      <button id="btn">Click to Add</button> 
-    </div>
-  </form> */
